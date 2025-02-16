@@ -6,27 +6,31 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class EmployerDao {
-    private final String  jdbcUrl = "jdbc:mysql://localhost:3306/employeedb?useSSL=false";
-    private final String jdbcDriver = "com.mysql.jdbc.Driver";
+    private final String  jdbcUrl = "jdbc:mysql://localhost:3306/emplyeedb";
+    private final String jdbcDriver = "com.mysql.cj.jdbc.Driver";
     private final String username = "root";
     private final String password = "th3you78";
 
-    private static final String SELECT_EMPLOYEE = "SELECT * FROM EMPLOYEES WHERE id=?";
+    private static final String SELECT_EMPLOYEE = "SELECT * FROM EMPLOYEES WHERE _id=?";
     private static final String SELECT_ALL_EMPLOYEES = "SELECT * FROM EMPLOYEES";
-    private static final String INSERT_EMPLOYEE = "INSERT INTO EMPLOYEES" + "  VALUES(?, ?, ?, ?, ?);";
-    private static final String DELETE_EMPLOYEE = "DELETE FROM EMPLOYEES WHERE id=?";
-    private static final String UPDATE_EMPLOYEE = "UPDATE EMPLOYEES SET name = ?, gender = ?, address = ?, phone = ? WHERE id = ?";
+    private static final String INSERT_EMPLOYEE = "INSERT INTO EMPLOYEES" + "  (name, gender, address, phone, email) VALUES " + "( ?, ?, ?, ?, ?);";
+    private static final String DELETE_EMPLOYEE = "DELETE FROM EMPLOYEES WHERE _id=?";
+    private static final String UPDATE_EMPLOYEE = "UPDATE EMPLOYEES SET name = ?, gender = ?, address = ?, phone = ? WHERE _id = ?";
 
     public EmployerDao() {}
 
     // Establish JDBC Connection
-    protected Connection getConnection() {
+    protected Connection getConnection()  {
         Connection conn = null;
+//        Connection conn = DriverManager.getConnection(jdbcUrl, username, password);
+//        System.out.println("Connected to Database.");
+//        return conn;
         try {
             // Load Type-4 Driver / MySQL Type-4 driver class
             Class.forName(jdbcDriver);
-            // Establish a connection
-            conn = DriverManager.getConnection(jdbcUrl, username, password);
+             conn = DriverManager.getConnection(jdbcUrl, username, password);
+            System.out.println("Connected to Database.");
+             //Establish a connection
         }catch (SQLException e){
             System.err.println("SQL Error: " + e.getMessage());
         }catch (ClassNotFoundException e){
@@ -44,12 +48,14 @@ public class EmployerDao {
             ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                int _id = Integer.parseInt(rs.getString("id"));
+                int _id = Integer.parseInt(rs.getString("_id"));
                 String name = rs.getString("name");
                 String gender = rs.getString("gender");
                 String address = rs.getString("address");
                 String phone = rs.getString("phone");
                 String email = rs.getString("email");
+
+                System.out.println(name + " " + email + " " + phone);
 
                 employer = new Employer(_id, name, gender, address, phone, email);
             }
@@ -68,7 +74,7 @@ public class EmployerDao {
             ResultSet rs = ps.executeQuery();
 
             while (rs.next()) {
-                int _id = Integer.parseInt(rs.getString("id"));
+                int _id = Integer.parseInt(rs.getString("_id"));
                 String name = rs.getString("name");
                 String gender = rs.getString("gender");
                 String address = rs.getString("address");
@@ -83,19 +89,20 @@ public class EmployerDao {
         return employers;
     }
     // Create an employee
-    public void insertEmployee(Employer user) {
+    public void insertEmployee(Employer employer) {
         try {
             Connection conn = getConnection();
             PreparedStatement preparedStatement = conn.prepareStatement(INSERT_EMPLOYEE);
-            preparedStatement.setString(1, user.getName() );
-            preparedStatement.setString(2, user.getGender() );
-            preparedStatement.setString(3, user.getAddress() );
-            preparedStatement.setString(4, user.getPhone() );
-            preparedStatement.setString(5, user.getEmail() );
+            preparedStatement.setString(1, employer.getName() );
+            preparedStatement.setString(2, employer.getGender() );
+            preparedStatement.setString(3, employer.getAddress() );
+            preparedStatement.setString(4, employer.getPhone() );
+            preparedStatement.setString(5, employer.getEmail() );
 
             preparedStatement.executeUpdate();
 
-        }catch (SQLException e){
+        }
+        catch (SQLException e){
             e.printStackTrace();
         }
     }
